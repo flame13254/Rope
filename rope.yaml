@@ -1,0 +1,4 @@
+path: ./dataset
+train: images/train
+val: images/val
+names: {0: 'overlap', 1: 'messy'}
