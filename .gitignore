@@ -1,0 +1,9 @@
+runs/
+dataset_cls/
+patches/
+*.pt
+*.onnx
+*.engine
+*_openvino_model/
+__pycache__/
+.pytest_cache/
