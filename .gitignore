@@ -7,3 +7,5 @@ patches/
 *_openvino_model/
 __pycache__/
 .pytest_cache/
+.superpowers/
+.idea/

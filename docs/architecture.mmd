@@ -1,0 +1,22 @@
+flowchart TD
+    subgraph L1["① 感知获取层 · 现场设备端"]
+        CAM["PTZ球机<br/>H.264 · CBR · 1080p+<br/>关闭3D降噪 · CPL偏振 · 补光 · 锁定预置位"]
+    end
+    subgraph L2["② 边缘计算层 · 工控机（独显 / Linux·Windows）"]
+        P1["进程1 · AI视觉诊断（主）<br/>OpenCV/PyAV拉主码流 → 抽帧25→5~8fps<br/>动态ROI裁剪 → TensorRT YOLO二分类<br/>滑动窗口1.5s时序平滑 → status(0/1)"]
+        P2["进程2 · 视频旁路转发（后台）<br/>FFmpeg拉子码流 → -c:v copy 免编码 → 推RTMP"]
+    end
+    subgraph L3["③ 通讯链路层 · 双轨解耦"]
+        BROKER["通道B · MQTT Broker<br/>阿里云/本地 · QoS1 · topic: rig/data/json"]
+        MEDIA["通道A · 云端MediaMTX<br/>分发标准RTMP直播流"]
+    end
+    subgraph L4["④ 孪生应用层 · 上位机（LabVIEW · 远程）"]
+        TWIN["数据驱动：status=1<br/>→ 3D卷筒故障渲染 + 声光报警 + 日志"]
+        VIDEO["视频复核：VLC拉RTMP<br/>原画质播放（无叠加 · 延迟≤5s）"]
+    end
+    CAM -- "主码流 RTSP/H.264（推理）" --> P1
+    CAM -- "子码流 RTSP/H.264（转发）" --> P2
+    P1 -- "MQTT/JSON QoS1" --> BROKER
+    P2 -- "RTMP裸流" --> MEDIA
+    BROKER -- "MQTT订阅" --> TWIN
+    MEDIA -- "RTMP订阅" --> VIDEO
