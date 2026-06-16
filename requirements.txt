@@ -5,5 +5,6 @@ pyyaml>=6.0
 onnxruntime>=1.16
 onnx>=1.16,<1.17   # 1.17 在部分 Windows/conda 环境下 onnx_cpp2py_export DLL 初始化失败
 psutil>=5.9
+paho-mqtt>=1.6
 pytest>=7.4
 # 可选后端（按机器手动装）：openvino, tensorrt
