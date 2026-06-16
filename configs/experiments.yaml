@@ -1,0 +1,11 @@
+common:
+  epochs: 100
+  batch: 16
+  device: auto          # auto -> 有CUDA用"0", 否则"cpu"
+  project: runs
+  data: dataset_cls
+models:
+  - {name: v8s-cls-320, weights: yolov8s-cls.pt, imgsz: 320}
+  - {name: v8s-cls-640, weights: yolov8s-cls.pt, imgsz: 640}
+  - {name: v8n-cls-320, weights: yolov8n-cls.pt, imgsz: 320}
+  - {name: v8n-cls-640, weights: yolov8n-cls.pt, imgsz: 640}
