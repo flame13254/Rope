@@ -1,4 +1,5 @@
-from rope_train.config import load_experiments, resolve_device
+import os
+from rope_train.config import load_experiments, resolve_device, find_best
 
 def test_load_experiments_has_four_runs():
     runs = load_experiments("configs/experiments.yaml")
@@ -15,3 +16,11 @@ def test_common_merged_into_each_run():
 def test_resolve_device_auto_returns_valid():
     assert resolve_device("auto") in ("0", "cpu")
     assert resolve_device("cpu") == "cpu"
+
+def test_find_best_locates_nested_classify_dir(tmp_path):
+    run = {"project": str(tmp_path / "runs"), "name": "v8n-cls-320"}
+    # 模拟 Ultralytics 分类模式的嵌套路径
+    nested = tmp_path / "runs" / "classify" / "runs" / "v8n-cls-320" / "weights"
+    nested.mkdir(parents=True)
+    (nested / "best.pt").write_bytes(b"x")
+    assert find_best(run) == str(nested / "best.pt")

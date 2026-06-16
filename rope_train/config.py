@@ -1,3 +1,5 @@
+import glob
+import os
 import yaml
 
 
@@ -23,3 +25,16 @@ def resolve_device(device):
         return "0" if torch.cuda.is_available() else "cpu"
     except Exception:
         return "cpu"
+
+
+def find_best(run):
+    """定位某个 run 的 best.pt。Ultralytics 分类模式会插入 classify/ 子目录,
+    标准路径找不到时在 project 下递归查找 <name>/weights/best.pt。"""
+    cand = os.path.join(run["project"], run["name"], "weights", "best.pt")
+    if os.path.exists(cand):
+        return cand
+    hits = glob.glob(
+        os.path.join(run["project"], "**", run["name"], "weights", "best.pt"),
+        recursive=True,
+    )
+    return hits[0] if hits else cand
