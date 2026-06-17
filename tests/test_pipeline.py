@@ -32,16 +32,25 @@ def _now_fn():
 
 def test_pipeline_stride_and_publish_on_change():
     calls, pubs = [], []
+    # publish_interval_sec=100 大于测试时长 -> 仅状态变化驱动发布
     p = Pipeline(_Src(9), _ROI(), _Clf(calls), _Smooth(), _Pub(pubs),
-                 camera_id="C1", frame_stride=3, heartbeat_sec=100, now_fn=_now_fn())
+                 camera_id="C1", frame_stride=3, publish_interval_sec=100, now_fn=_now_fn())
     p.run()
     assert len(calls) == 3          # 9 帧 stride 3 -> idx 0,3,6
     assert len(pubs) == 1           # status 恒为 1, 仅首帧发布
     assert pubs[0]["status"] == 1 and pubs[0]["camera_id"] == "C1"
 
+def test_pipeline_periodic_resend():
+    calls, pubs = [], []
+    # publish_interval_sec=0 -> 每个检测周期都重发当前状态(电平式)
+    p = Pipeline(_Src(9), _ROI(), _Clf(calls), _Smooth(), _Pub(pubs),
+                 camera_id="C1", frame_stride=3, publish_interval_sec=0, now_fn=_now_fn())
+    p.run()
+    assert len(pubs) == 3           # idx 0,3,6 每次都重发
+
 def test_pipeline_max_frames():
     calls, pubs = [], []
     p = Pipeline(_Src(100), _ROI(), _Clf(calls), _Smooth(), _Pub(pubs),
-                 camera_id="C1", frame_stride=1, heartbeat_sec=100, now_fn=_now_fn())
+                 camera_id="C1", frame_stride=1, publish_interval_sec=100, now_fn=_now_fn())
     p.run(max_frames=5)
     assert len(calls) == 5

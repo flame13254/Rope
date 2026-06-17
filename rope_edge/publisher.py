@@ -21,15 +21,24 @@ class LogPublisher:
 
 
 class MqttPublisher:
-    def __init__(self, host, port, topic, qos):
+    def __init__(self, host, port, topic, qos, lwt_topic=None, device_id=None):
         import paho.mqtt.client as mqtt  # 惰性导入
         self.topic = topic
         self.qos = qos
         self.client = mqtt.Client()
         self._buf = []
+        # 遗嘱(LWT): 边缘异常掉线时, broker 自动替它发 offline 通知订阅者
+        if lwt_topic:
+            offline = json.dumps({"device_id": device_id, "online": False},
+                                 ensure_ascii=False)
+            self.client.will_set(lwt_topic, offline, qos=1, retain=True)
         try:
             self.client.connect(host, port, keepalive=60)
             self.client.loop_start()
+            if lwt_topic:  # 连上后即发 online (retained), 与遗嘱配对
+                online = json.dumps({"device_id": device_id, "online": True},
+                                    ensure_ascii=False)
+                self.client.publish(lwt_topic, online, qos=1, retain=True)
         except Exception as e:
             print(f"[warn] MQTT 连接失败, 暂存待发: {e}")
 
@@ -44,5 +53,7 @@ class MqttPublisher:
 def make_publisher(cfg):
     m = cfg["mqtt"]
     if m.get("enabled"):
-        return MqttPublisher(m["host"], m["port"], m["topic"], m["qos"])
+        return MqttPublisher(m["host"], m["port"], m["topic"], m["qos"],
+                             lwt_topic=m.get("lwt_topic"),
+                             device_id=cfg.get("camera_id"))
     return LogPublisher()

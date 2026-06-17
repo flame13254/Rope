@@ -24,7 +24,7 @@ def main():
         publisher=make_publisher(cfg),
         camera_id=cfg["camera_id"],
         frame_stride=cfg["frame_stride"],
-        heartbeat_sec=cfg["heartbeat_sec"],
+        publish_interval_sec=cfg["publish_interval_sec"],
     )
     pipeline.run(max_frames=a.max_frames)
 

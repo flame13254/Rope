@@ -1,7 +1,7 @@
 import yaml
 
 REQUIRED = ("camera_id", "source", "frame_stride", "roi", "model",
-            "smoothing", "mqtt", "forward", "heartbeat_sec")
+            "smoothing", "mqtt", "forward", "publish_interval_sec")
 
 
 def load_edge_config(path):

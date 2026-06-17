@@ -4,6 +4,7 @@ frame_stride: 3                                   # 源:推理=3:1, 硬件吃紧
 roi: {type: fixed, x: 320, y: 180, w: 640, h: 480}
 model: {type: mock, path: "", device: auto}       # type: mock|yolo
 smoothing: {window_sec: 1.5, ratio: 0.8, conf_thresh: 0.5}
-mqtt: {enabled: false, host: 127.0.0.1, port: 1883, topic: rig/data/json, qos: 1}
+mqtt: {enabled: false, host: 127.0.0.1, port: 1883, topic: rig/data/json, qos: 1,
+       lwt_topic: "rig/status/PTZ_01"}   # 遗嘱主题: 边缘掉线时 broker 自动发 offline
 forward: {sub_url: "rtsp://CAM/sub", rtmp_url: "rtmp://CLOUD/live/spooling"}
-heartbeat_sec: 5
+publish_interval_sec: 1    # 状态持续重发间隔(秒); 状态变化时立即发, 否则至少每 N 秒重发当前状态
