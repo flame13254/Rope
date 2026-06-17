@@ -6,5 +6,11 @@ model: {type: mock, path: "", device: auto}       # type: mock|yolo
 smoothing: {window_sec: 1.5, ratio: 0.8, conf_thresh: 0.5}
 mqtt: {enabled: false, host: 127.0.0.1, port: 1883, topic: rig/data/json, qos: 1,
        lwt_topic: "rig/status/PTZ_01"}   # 遗嘱主题: 边缘掉线时 broker 自动发 offline
-forward: {sub_url: "rtsp://CAM/sub", rtmp_url: "rtmp://CLOUD/live/spooling"}
+forward:
+  sub_url: "rtsp://CAM/sub"
+  rtmp_url: "rtmp://CLOUD/live/spooling"
+  rtsp_timeout_us: 5000000                  # -stimeout(微秒); 卡死时尽快退出供守护重连
+  extra_input_args: []                      # 现场可加 -fflags nobuffer 等, 不改代码
+  extra_output_args: ["-flvflags", "no_duration_filesize"]  # RTMP/FLV 不可seek, 关结尾回写
+  reconnect_backoff: [2, 10]                # 重连退避(秒): 初值 -> 上限
 publish_interval_sec: 1    # 状态持续重发间隔(秒); 状态变化时立即发, 否则至少每 N 秒重发当前状态
